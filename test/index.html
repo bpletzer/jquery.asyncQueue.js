@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+  <head>
+    <title>jquery.asyncQueue.js</title>
+    <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
+  </head>
+  <body>
+
+    <h1 id="qunit-header">jquery.asyncQueue.js</h1>
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.js"></script>
+    <script type="text/javascript" src="qunit/qunit.js"></script>
+    <script type="text/javascript" src="sinon.js/sinon-1.0.0.js"></script>
+    <script type="text/javascript" src="sinon.js/sinon-ie-1.0.0.js"></script>
+    <script type="text/javascript" src="sinon.js/sinon-qunit-1.0.0.js"></script>
+    <!-- Source and test files go here -->
+
+    <script type="text/javascript" src="../jquery.asyncQueue.js"></script>
+    
+    
+    <script type="text/javascript">
+    var moduleSetup = {
+        setup: function(){
+            window.queue = window.queue || [];
+        }
+        ,teardown: function(){
+            window.queue = undefined;
+        }
+    };
+
+
+    module("async 1", moduleSetup);
+    test("stacked function gets executed asynchronously", function () {
+        var clock = this.sandbox.useFakeTimers()
+	    ,spy1 = this.spy();
+
+        queue.push( spy1 );	
+        $.fn.aqueue('queue');
+
+        equal( spy1.callCount, 0, "function should not be called immediatelly");
+
+        clock.tick(10);
+        ok(spy1.calledOnce, "first function called");
+    });
+
+
+    module("async 2", moduleSetup);
+    test("stacked function gets executed asynchronously", function () {
+        var clock = this.sandbox.useFakeTimers()
+	    ,spy1 = this.spy();
+
+        $.fn.aqueue('queue');
+        clock.tick(10);
+        equal( spy1.callCount, 0, "no stack -> no hack");
+
+        queue.push( spy1 );
+
+        equal( spy1.callCount, 0, "function should not be called immediatelly");
+
+        clock.tick(10);
+        ok(spy1.calledOnce, "first function called");
+    });
+
+
+    module("sync 1", moduleSetup);
+    test("stacked function gets executed synchronously", function () {
+        var spy1 = this.spy();
+
+        queue.push( spy1 );	
+        $.fn.aqueue('queue', false);
+
+        ok(spy1.calledOnce, "first function called immediatelly");
+    });
+    </script>
+  </body>
+</html>
