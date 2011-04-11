@@ -32,13 +32,13 @@
     };
 
 
-    module("async 1", moduleSetup);
+    module("async", moduleSetup);
     test("stacked function gets executed asynchronously", function () {
         var clock = this.sandbox.useFakeTimers()
 	    ,spy1 = this.spy();
 
         queue.push( spy1 );	
-        $.fn.aqueue('queue');
+        $(window).aqueue('queue');
 
         equal( spy1.callCount, 0, "function should not be called immediatelly");
 
@@ -47,12 +47,11 @@
     });
 
 
-    module("async 2", moduleSetup);
     test("stacked function gets executed asynchronously", function () {
         var clock = this.sandbox.useFakeTimers()
 	    ,spy1 = this.spy();
 
-        $.fn.aqueue('queue');
+        $(window).aqueue('queue');
         clock.tick(10);
         equal( spy1.callCount, 0, "no stack -> no hack");
 
@@ -64,13 +63,29 @@
         ok(spy1.calledOnce, "first function called");
     });
 
+    test("stacked functions gets executed asynchronously in right order", function () {
 
-    module("sync 1", moduleSetup);
+        var clock = this.sandbox.useFakeTimers()
+	    ,spy1 = this.spy()
+            ,spy2 = this.spy()
+            ;
+
+        queue.push( spy1 );
+        queue.push( spy2 );
+
+        $(window).aqueue('queue');
+        clock.tick(10);
+
+        ok(spy1.calledBefore(spy2));
+    });
+
+
+    module("sync", moduleSetup);
     test("stacked function gets executed synchronously", function () {
         var spy1 = this.spy();
 
         queue.push( spy1 );	
-        $.fn.aqueue('queue', false);
+        $(window).aqueue('queue', false);
 
         ok(spy1.calledOnce, "first function called immediatelly");
     });

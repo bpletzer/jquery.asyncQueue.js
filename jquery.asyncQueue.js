@@ -28,10 +28,10 @@
           if (false===async) {
             func.apply(that, args);
           } else {
-            (function(func, that, args){
+            (function(f, t, a){
               setTimeout(function(){
-                func.apply(that, args);
-              },0);
+                f.apply(t, a);
+              },1);
             }(func, that, args));
           }
 
